@@ -21,10 +21,13 @@ import {
 	convertPublicKeyEd2Curve,
 } from './convert';
 import {
+	getTransactionHash,
+	getSha256Hash,
+} from './hash';
+import {
 	getRawPrivateAndPublicKeyFromSecret,
 	getPrivateAndPublicKeyFromSecret,
 } from './keys';
-import { getTransactionHash, getSha256Hash } from './hash';
 
 /**
  * @method signMessageWithSecret
@@ -40,30 +43,6 @@ export function signMessageWithSecret(message, secret) {
 
 	const signedMessage = naclInstance.crypto_sign(msgBytes, privateKey);
 	const hexSignedMessage = bufferToHex(signedMessage);
-
-	return hexSignedMessage;
-}
-
-/**
- * @method signMessageWithTwoSecrets
- * @param message
- * @param secret
- * @param secondSecret
- *
- * @return {string}
- */
-
-export function signMessageWithTwoSecrets(message, secret, secondSecret) {
-	const msgBytes = naclInstance.encode_utf8(message);
-	const keypairBytes = getRawPrivateAndPublicKeyFromSecret(secret);
-	const secondKeypairBytes = getRawPrivateAndPublicKeyFromSecret(secondSecret);
-
-	const signedMessage = naclInstance.crypto_sign(msgBytes, keypairBytes.privateKey);
-	const doubleSignedMessage = naclInstance.crypto_sign(
-		signedMessage, secondKeypairBytes.privateKey,
-	);
-
-	const hexSignedMessage = bufferToHex(doubleSignedMessage);
 
 	return hexSignedMessage;
 }
@@ -93,6 +72,30 @@ export function verifyMessageWithPublicKey(signedMessage, publicKey) {
 }
 
 /**
+ * @method signMessageWithTwoSecrets
+ * @param message
+ * @param secret
+ * @param secondSecret
+ *
+ * @return {string}
+ */
+
+export function signMessageWithTwoSecrets(message, secret, secondSecret) {
+	const msgBytes = naclInstance.encode_utf8(message);
+	const keypairBytes = getRawPrivateAndPublicKeyFromSecret(secret);
+	const secondKeypairBytes = getRawPrivateAndPublicKeyFromSecret(secondSecret);
+
+	const signedMessage = naclInstance.crypto_sign(msgBytes, keypairBytes.privateKey);
+	const doubleSignedMessage = naclInstance.crypto_sign(
+		signedMessage, secondKeypairBytes.privateKey,
+	);
+
+	const hexSignedMessage = bufferToHex(doubleSignedMessage);
+
+	return hexSignedMessage;
+}
+
+/**
  * @method verifyMessageWithTwoPublicKeys
  * @param signedMessage
  * @param publicKey
@@ -119,7 +122,7 @@ export function verifyMessageWithTwoPublicKeys(signedMessage, publicKey, secondP
 	);
 
 	if (!secondSignatureVerified) {
-		throw new Error('Invalid signature second publicKey, cannot verify message');
+		throw new Error('Invalid signature for second publicKey, cannot verify message');
 	}
 
 	const firstSignatureVerified = naclInstance.crypto_sign_open(
@@ -127,7 +130,7 @@ export function verifyMessageWithTwoPublicKeys(signedMessage, publicKey, secondP
 	);
 
 	if (!firstSignatureVerified) {
-		throw new Error('Invalid signature first publicKey, cannot verify message');
+		throw new Error('Invalid signature for first publicKey, cannot verify message');
 	}
 	return naclInstance.decode_utf8(firstSignatureVerified);
 }
