@@ -197,6 +197,7 @@ export function encryptMessageWithSecret(message, secret, recipientPublicKey) {
 	const messageInBytes = naclInstance.encode_utf8(message);
 
 	const nonce = naclInstance.crypto_box_random_nonce();
+	console.log(messageInBytes);
 	const cipherBytes = naclInstance.crypto_box(
 		messageInBytes, nonce, convertedPublicKey, convertedPrivateKey,
 	);

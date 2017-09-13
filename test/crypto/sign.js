@@ -219,21 +219,21 @@ ${defaultSignedMessage}
 			(signedAndPrintedMessage).should.be.equal(defaultPrintedMessage);
 		});
 	});
-//
-// 	describe('#encryptMessageWithSecret', () => {
-// 		const encryptedMessage = encryptMessageWithSecret(
-// 			secretMessage, defaultSecret, defaultPublicKey,
-// 		);
-//
-// 		it('should encrypt a message and not throw with expected parameters', () => {
-// 			(encryptedMessage).should.be.ok().and.type('object');
-// 		});
-//
-// 		it('encrypted message should have nonce and encrypted message hex', () => {
-// 			(encryptedMessage).should.have.property('nonce');
-// 			(encryptedMessage).should.have.property('encryptedMessage');
-// 		});
-// 	});
+
+	describe('#encryptMessageWithSecret', () => {
+		let encryptedMessage;
+
+		beforeEach(() => {
+			encryptedMessage = encryptMessageWithSecret(
+				defaultMessage, defaultSecret, defaultPublicKey,
+			);
+		});
+
+		it('encrypted message should have nonce and encrypted message hex', () => {
+			(encryptedMessage).should.have.property('nonce').and.be.hexString();
+			(encryptedMessage).should.have.property('encryptedMessage').and.be.hexString();
+		});
+	});
 //
 // 	describe('#decryptMessageWithSecret', () => {
 // 		const encryptedMessage = encryptMessageWithSecret(
